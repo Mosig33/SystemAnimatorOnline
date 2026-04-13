@@ -821,9 +821,23 @@
 							},
 							"tooltip": {
 								"_translation_": {
-									"_default_": "During upper body mocap, use this setting to apply a rotation offset to the upper body of your avatar while rotating the root in the opposite direction, as if only your lower body is rotated while the upper body stays still. This can be useful if you are at a certain angle sideway to the camera instead of facing the camera straightly. Default is \"0°\".",
-									"ja": "上半身のモーキャップ中に、この設定を使用して、あたかも上半身が静止したまま下半身だけが回転しているかのように、ルートを反対方向に回転しながら、アバターの上半身に回転オフセットを適用します。 これは、カメラに真正面を向くのではなく、カメラに対して一定の角度で横にいる場合に便利です。 デフォルトは「0°」です。",
-									"zh": "在上半身動作捕捉期間，使用此設定可對人物的上半身施加旋轉偏移，同時沿相反方向旋轉整個人物，就好像只有下半身旋轉而上半身保持靜止一樣。 此選項方便當鏡頭位置是側面面向你的時候使用。 預設是「0°」。"
+									"_default_": "During upper body mocap, if you have to place the camera sideway so that you are not facing the camera straightly most of the time (such as during musical instrument mocap), use this setting to offset the upper body rotation by adjusting the rotation of your avatar's root. Default is \"0°\".",
+									"ja": "上半身のモーキャプ中に、カメラを横向きに配置して、ほとんどの場合カメラに正面を向かないようにする必要がある場合 (楽器のモーキャプ中など)、この設定を使用して、アバターのルートの回転を調整することで上半身の回転をオフセットします。 デフォルトは「0°」です。",
+									"zh": "在進行上半身動作捕捉時，如果您必須將相機側放，以致大多數時間都無法直視相機（例如在進行樂器動作捕捉時），請使用此設定透過調整人物模型根部的旋轉來抵消上半身旋轉。 預設是「0°」。"
+								}
+							},
+							"inverted": {
+								"_translation_": {
+									"_default_": "Inverted",
+									"ja": "反転",
+									"zh": "倒轉"
+								},
+								"tooltip": {
+									"_translation_": {
+										"_default_": "Inverted:\nWhen the setting is on, an inverted rotation offset is applied to the upper body instead of the root, so that your avatar will be facing forward instead of sideway. This is essential in some cases when a forward-facing avatar is a must. Default is \"OFF\".",
+										"ja": "反転:\nこの設定をオンにすると、ルートではなく上半身に反転回転オフセットが適用され、アバターが横向きではなく前向きになります。 これは、前向きのアバターが必要な場合に不可欠です。 デフォルトは「OFF」です。",
+										"zh": "倒轉:\n當此設定為有效時，會將反向旋轉偏移應用於上身而不是根部，這樣您的人物就會面向前方而不是側面。 當在某些情況下人物有必要面向前方時，這設定變得不可或缺。 預設是「OFF」。"
+									}
 								}
 							}
 						},
@@ -884,9 +898,9 @@
 							},
 							"tooltip": {
 								"_translation_": {
-									"_default_": "This setting determines the scaling of z-depth position of hip during full body mocap or when \"Hip camera\" is on. Smaller value makes your avatar appear bigger, while bigger value makes it smaller. Press ➕➖ key to change value. Default is \"100%\".",
-									"ja": "この設定は、全身モーションキャプチャ中または「ヒップカメラ」がオンのときのヒップの Z 深度位置のスケーリングを決定します。値が小さいほどアバターは大きく表示され、値が大きいほどアバターは小さく表示されます。 ➕➖キーを押して値を変更します。 デフォルトは「100%」です。",
-									"zh": "此設定決定全身動作捕捉期間或「腰間攝影機」開啟時腰部 z 深度位置的縮放比例。 較小的值使您的人物看起來更大， 而較大的值則使其看起來更小。 按➕➖鍵更改數值。 預設是「100%」。"
+									"_default_": "This setting determines the scaling of z-depth position of hip during full body mocap or when \"Hip camera\" is on. Smaller value draws your avatar closer to the camera, while bigger value pushes your avatar away further. 0% is a special case which freezes the z position (i.e. no camera depth estimation) while x/y position remains effective. Default is \"100%\".",
+									"ja": "この設定は、全身モーションキャプチャ中または「ヒップカメラ」がオンのときのヒップの Z 深度位置のスケーリングを決定します。 値が小さいほどアバターはカメラに近づき、値が大きいほどアバターはカメラから遠ざかります。 0% は特殊なケースであり、x/y 位置は有効なまま z 位置が固定されます (つまり、カメラの深度推定は行われません)。 デフォルトは「100%」です。",
+									"zh": "此設定決定全身動作捕捉期間或「腰間攝影機」開啟時腰部 z 深度位置的縮放比例。 較小的值會使您的人物更靠近相機，而較大的值會使您的人物更遠離相機。 0% 是一種特殊情況，它凍結 z 位置（即沒有相機深度估計）而 x/y 位置保持有效。 預設是「100%」。"
 								}
 							}
 						},
@@ -898,9 +912,9 @@
 							},
 							"tooltip": {
 								"_translation_": {
-									"_default_": "This setting applies a fixed offset on the z-depth position of hip during full body mocap or when \"Hip camera\" is on. Combined with \"Hip depth scale\", these allow total control over the visual size of your avatar along the z direction. Press ➕➖ key to change value. Default is \"0%\".",
-									"ja": "この設定は、全身モーションキャプチャ中または「ヒップカメラ」がオンのときに、ヒップの Z 深度位置に固定オフセットを適用します。 「ヒップ深さスケール」と組み合わせることで、アバターの Z 方向の視覚的なサイズを完全に制御できます。 ➕➖キーを押して値を変更します。 デフォルトは「0%」です。",
-									"zh": "此設定在使用全身動作捕捉期間或「腰間攝影機」開啟時， 對腰部 z 深度位置追加固定數值的偏移。 當此設定和「腰部深度比例」同時使用時， 可完全控制人物模型在 Z 方向的視覺大小。 按➕➖鍵更改數值。 預設是「100%」。"
+									"_default_": "This setting applies a fixed offset on the z-depth position of hip during full body mocap or when \"Hip camera\" is on. Combined with \"Hip depth scale\", these allow total control over the distance between your avatar and camera along the z direction. Press ➕➖ key to change value. Default is \"0%\".",
+									"ja": "この設定は、全身モーションキャプチャ中または「ヒップカメラ」がオンのときに、ヒップの Z 深度位置に固定オフセットを適用します。 「ヒップ深さスケール」と組み合わせることで、アバターとカメラ間の Z 方向の距離を完全に制御できます。 ➕➖キーを押して値を変更します。 デフォルトは「0%」です。",
+									"zh": "此設定在使用全身動作捕捉期間或「腰間攝影機」開啟時， 對腰部 z 深度位置追加固定數值的偏移。 當此設定和「腰部深度比例」同時使用時， 可以完全控制你的人物和相機沿著 z 方向的距離。。 按➕➖鍵更改數值。 預設是「100%」。"
 								}
 							}
 						},
@@ -3514,7 +3528,7 @@
 							},
 							"list": {
 								"_translation_": {
-									"_default_": "NewruGuru, Kai, Nymph, KuraiNoOni, LouLi Lou, skeh, Swoonifer, Nyaarium, Kyonko_VT, ObsidianMaker, Catt, ARON, azhawker, CoCoNo,"
+									"_default_": "NewruGuru, Kai, Nymph, KuraiNoOni, LouLi Lou, skeh, Swoonifer, Nyaarium, Kyonko_VT, ObsidianMaker, Catt, ARON, azhawker, Stimmchen, CoCoNo,"
 								}
 							}
 						}
