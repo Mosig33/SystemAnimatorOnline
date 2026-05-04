@@ -1,4 +1,4 @@
-// (2025-02-09)
+// (2025-04-02)
 
 MMD_SA_options.Dungeon = (function () {
 
@@ -3488,6 +3488,7 @@ System._browser.translation.dictionary = {
 										"zh": "使用者介面現已關閉。 點擊螢幕並按住 1 秒鐘，然後按 / 鍵切換下方介面的顯示。"
 									}
 								},
+
 								"green_screen": {
 									"_translation_": {
 										"_default_": "green screen",
@@ -14061,6 +14062,7 @@ if (scale != _scale) {
 const w = 280+5+5;
 SB_tooltip.style.left = ((x > MMD_SA.THREEX.SL.width/2) ? x/window.devicePixelRatio - 40 - w * (1+(scale-1)/2) : x/window.devicePixelRatio + 40 + w * (scale-1)/2) + 'px';
 SB_tooltip.style.top  = (y/window.devicePixelRatio + 40) + 'px';
+SB_tooltip.style.fontSize = ((System._browser.translation.language == 'ja') ? 9 : 10) + 'px';
 SB_tooltip.style.visibility = 'inherit';
       };
     })()

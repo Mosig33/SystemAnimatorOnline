@@ -1,4 +1,4 @@
-// (2025-03-17)
+// (2025-04-02)
 
 MMD_SA.fn = {
 /*
@@ -854,7 +854,14 @@ const d = p_bone.name.charAt(0);
 const _d = (d=="左")?'left':'right';
 const rot_offset = MMD_SA.MMD.motionManager.para_SA.motion_tracking?.hand_tracking?.rotation_reference?.[_d]?.offset;
 if (rot_offset) {
-  rot_delta.multiply(MMD_SA.TEMP_q.copy(rot_offset));
+  const r = MMD_SA.TEMP_q;
+  if (rot_offset.w == null) {
+    r.setFromEuler(MMD_SA.TEMP_v3.copy(rot_offset), rot_offset.order);
+  }
+  else {
+    r.copy(rot_offset);
+  }
+  rot_delta.multiply(r);
 }
 
 // for VMC

@@ -1,5 +1,5 @@
 // XR Animator
-// (2025-03-17)
+// (2025-04-02)
 
 var MMD_SA_options = {
 
@@ -3428,7 +3428,7 @@ video:{
 //  hidden:true,
 //  hidden_on_webcam: true,
   scale:0.4, top:-0.5,
-//left:(-0.5*-1), top:-1,
+//left:(-0.5*0), top:-1,
 //scale:0.4*1,top:0,left:-3,
 //scale:0.4*2,top:0,left:-1,
 },
@@ -3436,7 +3436,7 @@ wireframe:{
 //  hidden:true,
 //  align_with_video:true,
   top:0.5,
-//left:(0.5*-1),top:-1,
+//left:(0.5*-0),top:-1*-1,
 //left:1,
 //top:0.8,left:0.4,
 //top:0,left:3,
@@ -7579,6 +7579,7 @@ function animate_object3D() {
 // v0.37.3
 window.addEventListener('SA_MMD_before_render', animate_object3D);
 
+
 const adjust_object3D = (function () {
   const parent_bone_list = ['ROOT', '頭','首', '上半身2','上半身','左腕','左ひじ','左手首','右腕','右ひじ','右手首', '左足','左ひざ','左足首','右足','右ひざ','右足首'];
 
@@ -8491,13 +8492,26 @@ MMD_SA._force_motion_shuffle = true;
       update_scene_only = object3D_list.every(obj=>{
         if (obj.type == 'object3D') {
           const filename = obj.path.replace(/^.+[\/\\]/, '').replace(/\.[^\.]+$/, '');
-// a simple trick to allow simple object scene to just update para instead of adding duplicated objects, probably won't work well for complicated cases when the existing scene has object clones.
+// a simple trick to allow simple object scene to just update para instead of adding duplicated objects or resetting existing scene, probably won't work well for complicated cases when the existing scene has object clones.
           const _no_clone = MMD_SA.THREEX._XR_Animator_scene_.object3D_list.filter(v=>v.path.replace(/^.+[\/\\]/, '').replace(/\.[^\.]+$/, '')==filename).length == 1;
           return _no_clone;
         }
       });
 //console.log('update_scene_only',update_scene_only)
       scene_needs_reset = !update_scene_only;
+
+      if (scene_needs_reset) {
+        scene_needs_reset = !object3D_list.every(obj=>{
+// allow appending of scenes if all 3D objects of the new scene support object detection (and no extsing objects use the same detection ID)
+          return obj.model_para?.object_detection && !MMD_SA.THREEX._XR_Animator_scene_.object3D_list.some(_obj=>obj.model_para.object_detection.class_name_list.join(',')==_obj.model_para?.object_detection?.class_name_list.join(','));
+        }) && !object3D_list.every(obj=>{
+// allow appending of scenes if the new scene has no 3D object that uses VMC tracker
+          return obj.model_para?.VMC_tracker_index == null;
+        }) && !MMD_SA.THREEX._XR_Animator_scene_.object3D_list.every(obj=>{
+// allow appending of scenes if the existing scene has no 3D object that uses VMC tracker
+          return obj.model_para?.VMC_tracker_index == null;
+        });
+      }
     }
 
     if (scene_needs_reset) {
@@ -8561,6 +8575,7 @@ MMD_SA._force_motion_shuffle = true;
     }
 
     const HDRI = MMD_SA.THREEX.enabled && json.XR_Animator_scene.HDRI;
+    const panorama = json.XR_Animator_scene.panorama;
     if (HDRI) {
       if (HDRI.path) {
         if (!await locate_file(zip, HDRI)) {
@@ -8580,8 +8595,8 @@ MMD_SA._force_motion_shuffle = true;
         check_loaded(1);
 
         if (HDRI.rotation_speed) {
-          dome_axis_angle = panorama.axis_angle;
-          dome_rotation_speed = panorama.rotation_speed;
+          dome_axis_angle = HDRI.axis_angle || panorama.axis_angle;
+          dome_rotation_speed = HDRI.rotation_speed || panorama.rotation_speed;
           System._browser.on_animation_update.remove(rotate_dome,1);
           System._browser.on_animation_update.add(rotate_dome,0,1,-1);
         }
@@ -8592,8 +8607,7 @@ MMD_SA._force_motion_shuffle = true;
       }
     }
 
-    const panorama = !HDRI?.mode && json.XR_Animator_scene.panorama;
-    if (panorama) {
+    if ((!HDRI?.mode || !HDRI?.use_background) && panorama) {
       if (panorama.path) {
         if (!await locate_file(zip, panorama))
           panorama.index = -1;
@@ -8684,7 +8698,7 @@ MMD_SA._force_motion_shuffle = true;
             obj._object3d_uuid = object3d_list[object3d_list.length-1].uuid;
           }
 
-          show_status('✅"' + filename + '"' + ((_no_clone) ? ' (updated)' : ''));
+          show_status('✅"' + filename + '"' + ((_no_clone) ? ' (updated)' : ((MMD_SA.THREEX._XR_Animator_scene_) ? ' (appended)' : '')));
           check_loaded(1);
         }
       }
@@ -10442,7 +10456,7 @@ MMD_SA_options.Dungeon.para_by_grid_id[2].ground_y = explorer_ground_y;
      ,[
         {
           message: {
-  get content() { return 'XR Animator (v0.33.4b)\n' + System._browser.translation.get('XR_Animator.UI.UI_options.about_XR_Animator.message'); }
+  get content() { return 'XR Animator (v0.33.5)\n' + System._browser.translation.get('XR_Animator.UI.UI_options.about_XR_Animator.message'); }
  ,bubble_index: 3
  ,branch_list: [
     { key:1, event_id: {
@@ -11944,7 +11958,7 @@ else if ((e.key == '+') || (e.key == '-')) {
     System._browser.camera.poseNet.limb_return_duration_percent = THREE.Math.clamp((System._browser.camera.poseNet.limb_return_duration_percent||0) + inc*5, 25,400);
   }
   else if (option_plus_minus == 'hip_depth_scale') {
-    System._browser.camera.poseNet.hip_depth_scale_percent = THREE.Math.clamp((System._browser.camera.poseNet.hip_depth_scale_percent||0) + inc*2, 10,300);
+    System._browser.camera.poseNet.hip_depth_scale_percent = THREE.Math.clamp((System._browser.camera.poseNet.hip_depth_scale_percent||0) + inc*2, 0,300);
   }
   else if (option_plus_minus == 'hip_z_position_offset') {
     System._browser.camera.poseNet.hip_z_position_offset_percent = THREE.Math.clamp((System._browser.camera.poseNet.hip_z_position_offset_percent||0) + inc, -100,100);
@@ -12118,12 +12132,13 @@ return page2_index;
 'G. ' + System._browser.translation.get('XR_Animator.UI.motion_capture.mocap_options.body_tracking_options.limb_entry_duration') + ': ' + System._browser.camera.poseNet.limb_entry_duration_percent + '%' + ((option_plus_minus == 'limb_entry_duration') ? '➕➖' : '  　　'),
 'H. ' + System._browser.translation.get('XR_Animator.UI.motion_capture.mocap_options.body_tracking_options.limb_return_duration') + ': ' + System._browser.camera.poseNet.limb_return_duration_percent + '%' + ((option_plus_minus == 'limb_return_duration') ? '➕➖' : '  　　'),
 'I. ' + System._browser.translation.get('XR_Animator.UI.motion_capture.mocap_options.body_tracking_options.upper_rotation_offset') + ': ' + ((MMD_SA.MMD.motionManager.para_SA.motion_tracking?.ML_models?.pose || MMD_SA_options.user_camera.ML_models.pose).upper_rotation_offset||0) + '°' + ((option_plus_minus == 'upper_rotation_offset') ? '➕➖' : ''),
-'J. ' + System._browser.translation.get('XR_Animator.UI.motion_capture.mocap_options.body_tracking_options.hide_avatar_on_tracking_loss') + ': ' + ((System._browser.camera.poseNet.hide_avatar_on_tracking_loss == 1) ? System._browser.translation.get('XR_Animator.UI.motion_capture.mocap_options.body_tracking_options.hide_avatar_on_tracking_loss.non_VMC') : ((System._browser.camera.poseNet.hide_avatar_on_tracking_loss)?'ON':'OFF')),
+'J. ┗ ' + System._browser.translation.get('XR_Animator.UI.motion_capture.mocap_options.body_tracking_options.upper_rotation_offset.inverted') + ': ' + ((MMD_SA_options.user_camera.ML_models.pose.upper_rotation_offset_inverted)?'ON':'OFF'),
+'K. ' + System._browser.translation.get('XR_Animator.UI.motion_capture.mocap_options.body_tracking_options.hide_avatar_on_tracking_loss') + ': ' + ((System._browser.camera.poseNet.hide_avatar_on_tracking_loss == 1) ? System._browser.translation.get('XR_Animator.UI.motion_capture.mocap_options.body_tracking_options.hide_avatar_on_tracking_loss.non_VMC') : ((System._browser.camera.poseNet.hide_avatar_on_tracking_loss)?'ON':'OFF')),
     ].join('\n');
   },
   index: 1,
   bubble_index: 3,
-  para: { row_max:11 },
+  para: { row_max:11, font_scale:0.95 },
   branch_list: [
   { key:'A', event_id: {
       func: function () {
@@ -12241,6 +12256,19 @@ MMD_SA_options.Dungeon.utils.tooltip(
     }
   },
   { key:'J', event_id: {
+      func: function () {
+MMD_SA_options.user_camera.ML_models.pose.upper_rotation_offset_inverted = !MMD_SA_options.user_camera.ML_models.pose.upper_rotation_offset_inverted;
+      },
+      goto_event: { branch_index:mocap_options_branch, step:1 },
+    },
+    onmouseover: function (e) {
+MMD_SA_options.Dungeon.utils.tooltip(
+  e.clientX, e.clientY,
+  System._browser.translation.get('XR_Animator.UI.motion_capture.mocap_options.body_tracking_options.upper_rotation_offset.inverted.tooltip')
+);
+    }
+  },
+  { key:'K', event_id: {
       func: function () {
 if (++System._browser.camera.poseNet.hide_avatar_on_tracking_loss > 2)
   System._browser.camera.poseNet.hide_avatar_on_tracking_loss = 0;
@@ -14303,6 +14331,7 @@ config.user_camera = {
       })(),
 
       upper_rotation_offset: MMD_SA_options.user_camera.ML_models.pose.upper_rotation_offset,
+      upper_rotation_offset_inverted: MMD_SA_options.user_camera.ML_models.pose.upper_rotation_offset_inverted,
       arm_horizontal_offset_percent: System._browser.camera.poseNet.arm_horizontal_offset_percent,
       arm_vertical_offset_percent: System._browser.camera.poseNet.arm_vertical_offset_percent,
       limb_entry_duration_percent: System._browser.camera.poseNet.limb_entry_duration_percent,
@@ -14536,6 +14565,7 @@ try {
 // Do not set .use_armIK to false as it will completely disable it instead of auto select
         MMD_SA_options.user_camera.ML_models.pose.use_armIK = (config[p].ML_models.pose.use_armIK !== false) || null;
         MMD_SA_options.user_camera.ML_models.pose.upper_rotation_offset = config[p].ML_models.pose.upper_rotation_offset;
+        MMD_SA_options.user_camera.ML_models.pose.upper_rotation_offset_inverted = config[p].ML_models.pose.upper_rotation_offset_inverted;
         System._browser.camera.poseNet.auto_grounding = config[p].ML_models.pose.auto_grounding;
         System._browser.camera.poseNet.shoulder_tracking = config[p].ML_models.pose.shoulder_tracking;
         System._browser.camera.poseNet.body_bend_reduction_power = config[p].ML_models.pose.body_bend_reduction_power;
@@ -15356,11 +15386,13 @@ if (!para_SA.playbackRate_by_model_index[0])
 
 let playbackRate = para_SA.playbackRate_by_model_index[0];
 if (d.dir > 0) {
-  playbackRate = Math.min(playbackRate+0.25, 4);
+  playbackRate = Math.min(playbackRate+0.1, 3);
 }
 else {
-  playbackRate = Math.max(playbackRate-0.25, 0.25);
+  playbackRate = Math.max(playbackRate-0.1, 0.2);
 }
+
+playbackRate = Math.round(playbackRate*10)/10;
 
 para_SA.playbackRate_by_model_index[0] = playbackRate;
 

@@ -1,5 +1,5 @@
 // MMD for System Animator
-// (2025-03-17)
+// (2025-04-02)
 
 var use_full_spectrum = true
 
@@ -2946,19 +2946,31 @@ for (let i = 0, i_length = msg_line.length; i < i_length; i++) {
   if (w_max < m.width)
     w_max = m.width;
 
-  let b_length;
-  if (_msg.indexOf('➕➖') == _msg.length-2) {
+// v0.38.2
+  let b_length, b_index, b_ev;
+  b_index = _msg.indexOf('➕➖');
+  if (b_index != -1) {
     b_length = 2;
+    b_ev = [{ key:'+' }, { key:'-' }];
   }
-  else if (_msg.indexOf('⬅️➡️') == _msg.length-4) {
-    b_length = 4;
+  else {
+    b_index = _msg.indexOf('⬅️➡️');
+    if (b_index != -1) {
+      b_ev = [{ code:'ArrowLeft' }, { code:'ArrowRight' }];
+    }
+    else {
+      b_index = _msg.indexOf('⬆️⬇️');
+      if (b_index != -1)
+        b_ev = [{ code:'ArrowUp' }, { code:'ArrowDown' }]
+    }
+    if (b_index != -1) {
+      b_length = 4;
+    }
   }
 
   if (b_length) {
-    const msg_width = context.measureText(_msg.substring(0, _msg.length-b_length)).width;
-    const button_width = context.measureText(_msg.substring(_msg.length-b_length)).width;
-
-    const ev = (b_length == 2) ? [{ key:'+' }, { key:'-' }] : [{ code:'ArrowLeft' }, { code:'ArrowRight' }];
+    const msg_width = context.measureText(_msg.substring(0, b_index)).width;
+    const button_width = context.measureText(_msg.substring(b_index, b_index+b_length)).width;
 
     const id = _msg.replace(/\:.+$/, '');
     const b_list_old = msg_obj_old?.[i]?.b_list;
@@ -2966,11 +2978,12 @@ for (let i = 0, i_length = msg_line.length; i < i_length; i++) {
 
     this.msg_obj[i].b_list = [
 { id:id, w:msg_width, _mouse_:(msg_identical)?b_list_old[0]._mouse_:{} },
-{ w:msg_width+button_width/2, event:ev[0], _mouse_:(msg_identical)?b_list_old[1]._mouse_:{}, b:_msg.substring(_msg.length-b_length,   _msg.length-b_length/2) },
-{ w:msg_width+button_width,   event:ev[1], _mouse_:(msg_identical)?b_list_old[2]._mouse_:{}, b:_msg.substring(_msg.length-b_length/2, _msg.length) },
+{ w:msg_width+button_width/2, event:b_ev[0], _mouse_:(msg_identical)?b_list_old[1]._mouse_:{}, b:_msg.substring(b_index, b_index-b_length/2) },
+{ w:msg_width+button_width,   event:b_ev[1], _mouse_:(msg_identical)?b_list_old[2]._mouse_:{}, b:_msg.substring(b_index-b_length/2, b_index-b_length) },
     ];
   }
 }
+
 
 var w = w_max
 var h = msg_line.length * h_max + (msg_line.length-1) * 10
@@ -9517,11 +9530,14 @@ if (!animation_enabled) {
 if (!animation_enabled) {
   const root_bone = bones_by_name['全ての親'];
   const root_bone_pos = get_MMD_bone_pos(mesh_MMD, root_bone, v2);
-  center_bone_pos.multiplyScalar(leg_scale).add(root_bone_pos).multiplyScalar(1/vrm_scale).applyQuaternion(root_bone.quaternion);
+  const root_bone_rot = root_bone.quaternion;
+
+  center_bone_pos.multiplyScalar(leg_scale).add(root_bone_pos).multiplyScalar(1/vrm_scale);
+
+  center_bone_pos.applyQuaternion(root_bone_rot);
+  hips_rot.premultiply(root_bone_rot);
 
   this.getBoneNode('hips').position.fromArray(this.para.pos0['hips']).add(this.process_position(center_bone_pos));
-
-  hips_rot.premultiply(root_bone.quaternion);
 }
 
 if (!animation_enabled) {
